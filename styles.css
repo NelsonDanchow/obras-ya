@@ -84,3 +84,37 @@ dialog::backdrop { background: rgba(0,0,0,.55); }
 .reviews li {
   border-top: 1px solid var(--line); padding: .65rem 0; color: var(--muted); font-size: .9rem;
 }
+
+.hidden { display: none !important; }
+.view { padding-top: 1.25rem; }
+.role-grid { display: grid; gap: 1rem; grid-template-columns: 1fr; margin: 1rem 0 1.5rem; }
+@media (min-width: 700px) { .role-grid { grid-template-columns: 1fr 1fr; } }
+.role-card {
+  text-align: left; background: var(--card); border: 1px solid var(--line);
+  border-radius: 16px; padding: 1.1rem; cursor: pointer; color: var(--text);
+}
+.role-card:hover { border-color: var(--accent); }
+.role-card h2 { margin: 0 0 .35rem; font-size: 1.15rem; }
+.role-card p { margin: 0; color: var(--muted); font-size: .92rem; }
+.form label { margin-bottom: .75rem; }
+.form input, .form textarea { width: 100%; }
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0; }
+.chip-btn {
+  border-radius: 999px; border: 1px solid var(--line); background: #0f172a;
+  color: var(--text); padding: .45rem .8rem; cursor: pointer; font: inherit;
+}
+.chip-btn.on { border-color: var(--accent); color: var(--accent); }
+.chip {
+  font-size: .8rem; color: var(--muted); border: 1px solid var(--line);
+  border-radius: 999px; padding: .25rem .65rem;
+}
+.linkish {
+  background: none; border: none; color: var(--muted); cursor: pointer;
+  font: inherit; padding: 0; margin-bottom: .75rem;
+}
+.phone { color: var(--accent2); font-weight: 600; }
+.totales { margin: 1rem 0; display: grid; gap: .5rem; }
+.totales > div { display: flex; justify-content: space-between; gap: 1rem; }
+.totales .big { font-size: 1.1rem; border-top: 1px solid var(--line); padding-top: .5rem; }
+.tiny { font-size: .8rem; }
+.block { display: flex; flex-direction: column; gap: .35rem; margin: 1rem 0; color: var(--muted); font-size: .85rem; }
