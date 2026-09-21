@@ -143,3 +143,13 @@ dialog::backdrop { background: rgba(0,0,0,.55); }
 .intro p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.45; }
 .social { margin: .75rem 0 1rem; display: grid; gap: .45rem; }
 .social-btn { width: 100%; background: #0b1220; }
+
+.mods {
+  border: 1px solid var(--line); border-radius: 12px; padding: .75rem;
+  margin: .75rem 0; color: var(--muted);
+}
+.mods legend { color: var(--text); padding: 0 .35rem; }
+.ferre-row {
+  display: grid; grid-template-columns: 1fr auto auto; gap: .75rem;
+  padding: .45rem 0; border-bottom: 1px solid var(--line); font-size: .9rem;
+}

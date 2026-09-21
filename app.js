@@ -6,6 +6,41 @@ const prestadores = [
   { id: 5, nombre: "Equipo Norte Sur", rubro: "Albañilería", zona: "Toda la ciudad", rating: 4.5, trabajos: 67, telefono: "2901-555005", bio: "Refacciones y obra nueva chica.", tags: ["albañilería", "pared", "construcción", "reparación"] },
 ];
 
+
+const ferreterias = [
+  {
+    id: "f1",
+    nombre: "Ferretería del Fin del Mundo",
+    items: [
+      { id: "i1", nombre: "Kit reparación estufa", precio: 28500, stock: 12 },
+      { id: "i2", nombre: "Flexible gas 1m", precio: 9200, stock: 40 },
+      { id: "i3", nombre: "Pintura látex 4L", precio: 18700, stock: 25 },
+      { id: "i4", nombre: "Canilla monocomando", precio: 22100, stock: 8 },
+    ],
+  },
+  {
+    id: "f2",
+    nombre: "Todo Obra Ushuaia",
+    items: [
+      { id: "i1", nombre: "Kit reparación estufa", precio: 26900, stock: 6 },
+      { id: "i2", nombre: "Flexible gas 1m", precio: 8900, stock: 20 },
+      { id: "i3", nombre: "Pintura látex 4L", precio: 19200, stock: 15 },
+      { id: "i4", nombre: "Canilla monocomando", precio: 24500, stock: 3 },
+    ],
+  },
+  {
+    id: "f3",
+    nombre: "Hiper Ferre Ushuaia",
+    items: [
+      { id: "i1", nombre: "Kit reparación estufa", precio: 30100, stock: 18 },
+      { id: "i2", nombre: "Flexible gas 1m", precio: 9500, stock: 50 },
+      { id: "i3", nombre: "Pintura látex 4L", precio: 17500, stock: 30 },
+      { id: "i4", nombre: "Canilla monocomando", precio: 21000, stock: 11 },
+    ],
+  },
+];
+const TRASLADO_REPUESTO = 15000;
+
 const opcionesReparacion = ["Estufa / calefacción", "Electricidad", "Plomería / canillas", "Pintura", "Baño", "Otro"];
 const opcionesConstruccion = ["Baño de cero", "Ampliación", "Paredes / revoque", "Instalación eléctrica nueva", "Otro"];
 
@@ -22,7 +57,7 @@ const state = {
 };
 
 const $ = (id) => document.getElementById(id);
-const views = ["login", "home", "detalle", "catalogo", "presupuesto", "pro"];
+const views = ["login", "home", "detalle", "catalogo", "presupuesto", "pro", "ferre"];
 
 function show(view) {
   views.forEach((v) => {
@@ -41,7 +76,8 @@ function updateChip() {
   const btn = $("btnAuth");
   const sw = $("btnSwitch");
   if (state.name && state.mode) {
-    chip.textContent = `${state.name} · ${state.mode === "ofrecer" ? "ofrecer" : "contratar"}`;
+    const modeLabel = state.mode === "ofrecer" ? "ofrecer" : state.mode === "ferreteria" ? "ferretería" : "contratar";
+    chip.textContent = `${state.name} · ${modeLabel}`;
     chip.classList.remove("hidden");
     sw.classList.remove("hidden");
     btn.textContent = "Salir";
@@ -58,8 +94,9 @@ function fillLegal() {
 
 function selectMode(mode) {
   state.mode = mode;
+  const map = { contratar: "cliente", ofrecer: "profesional", ferreteria: "ferreteria" };
   document.querySelectorAll(".role-card[data-role]").forEach((el) => {
-    el.classList.toggle("on", el.dataset.role === (mode === "ofrecer" ? "profesional" : "cliente"));
+    el.classList.toggle("on", el.dataset.role === map[mode]);
   });
   $("proExtra").classList.toggle("hidden", mode !== "ofrecer");
   $("aceptoComisionWrap").classList.toggle("hidden", mode !== "ofrecer");
@@ -117,7 +154,8 @@ function renderCatalogo() {
 function calcPresu() {
   const mano = Number($("presuMano").value) || 0;
   const insumos = Number($("presuInsumos").value) || 0;
-  const sub = mano + insumos;
+  const traslado = Number($("presuTraslado").value) || 0;
+  const sub = mano + insumos + traslado;
   const comision = Math.round(sub * 0.1);
   $("presuSub").textContent = `$${sub.toLocaleString("es-AR")}`;
   $("presuComision").textContent = `$${comision.toLocaleString("es-AR")} → Obras Ya`;
@@ -143,6 +181,7 @@ function goPresupuesto(id) {
   $("presuDesc").value = state.detalle
     ? `${state.tipo === "construccion" ? "Construcción" : "Reparación"}: ${state.detalle}`
     : "";
+  fillFerreSelects();
   calcPresu();
   show("presupuesto");
 }
@@ -152,9 +191,47 @@ function goModeHome() {
     $("proRubroLabel").textContent = state.rubro || "—";
     $("proTyCLabel").textContent = state.tycAt || "—";
     show("pro");
+  } else if (state.mode === "ferreteria") {
+    renderFerrePanel();
+    show("ferre");
   } else {
     show("home");
   }
+}
+
+function renderFerrePanel() {
+  const f = ferreterias[0];
+  if ($("ferreNombre") && !$("ferreNombre").value) $("ferreNombre").value = f.nombre;
+  $("ferreLista").innerHTML = f.items.map((it) =>
+    `<div class="ferre-row"><span>${it.nombre}</span><strong>$${it.precio.toLocaleString("es-AR")}</strong><span class="muted">stock ${it.stock}</span></div>`
+  ).join("");
+}
+
+function fillFerreSelects() {
+  const selF = $("presuFerre");
+  const selI = $("presuItem");
+  if (!selF) return;
+  selF.innerHTML = ferreterias.map((f) => `<option value="${f.id}">${f.nombre}</option>`).join("");
+  function fillItems() {
+    const f = ferreterias.find((x) => x.id === selF.value) || ferreterias[0];
+    selI.innerHTML = f.items.map((it) =>
+      `<option value="${it.id}" data-precio="${it.precio}">${it.nombre} — $${it.precio.toLocaleString("es-AR")} (stock ${it.stock})</option>`
+    ).join("");
+    syncInsumoFromItem();
+  }
+  selF.onchange = fillItems;
+  selI.onchange = syncInsumoFromItem;
+  fillItems();
+}
+
+function syncInsumoFromItem() {
+  const selI = $("presuItem");
+  const opt = selI.options[selI.selectedIndex];
+  const precio = opt ? Number(opt.dataset.precio || 0) : 0;
+  $("presuInsumos").value = precio;
+  const trae = document.querySelector('input[name="repuesto"]:checked')?.value === "pro";
+  $("presuTraslado").value = trae ? TRASLADO_REPUESTO : 0;
+  calcPresu();
 }
 
 $("btnAuth").addEventListener("click", () => {
@@ -171,6 +248,7 @@ $("btnAuth").addEventListener("click", () => {
 
 $("pickCliente").addEventListener("click", () => selectMode("contratar"));
 $("pickPro").addEventListener("click", () => selectMode("ofrecer"));
+$("pickFerre").addEventListener("click", () => selectMode("ferreteria"));
 
 $("btnLoginGo").addEventListener("click", () => {
   const name = $("loginName").value.trim();
@@ -285,6 +363,12 @@ document.querySelectorAll("[data-back]").forEach((b) => {
   b.addEventListener("click", () => show(b.dataset.back));
 });
 
+$("btnFerreSave")?.addEventListener("click", () => {
+  alert("Lista de precios guardada (demo). En producción queda vinculada al mail de la ferretería.");
+});
+document.querySelectorAll('input[name="repuesto"]').forEach((r) => {
+  r.addEventListener("change", syncInsumoFromItem);
+});
 $("btnVerTyC").addEventListener("click", () => {
   fillLegal();
   $("modalBody").innerHTML = `<h2>Términos y condiciones</h2><pre class="legal-pre"></pre>`;

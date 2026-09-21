@@ -46,10 +46,14 @@
         </button>
         <button type="button" class="role-card" data-role="profesional" id="pickPro">
           <h2>Quiero ofrecer servicios</h2>
-          <p>Soy oficinista de oficio. Comisión del 10% a la plataforma por laburo cerrado.</p>
+          <p>Soy profesional de oficio. Comisión del 10% a la plataforma por laburo cerrado.</p>
+        </button>
+        <button type="button" class="role-card" data-role="ferreteria" id="pickFerre">
+          <h2>Soy una ferretería</h2>
+          <p>Publico precios y stock. Aparezco en los presupuestos de insumos.</p>
         </button>
       </div>
-      <p class="muted tiny">Después podés cambiar de modo cuando quieras (contratar ↔ ofrecer).</p>
+      <p class="muted tiny">Después podés cambiar de modo (contratar ↔ ofrecer). Las ferreterías usan su propio panel de precios.</p>
 
       <div id="proExtra" class="hidden">
         <label>Tu rubro principal
@@ -85,7 +89,7 @@
   <section id="view-home" class="wrap view">
     <div class="intro card">
       <h2>Qué es Obras Ya</h2>
-      <p>Plataforma para contratar oficios de construcción y reparación en Ushuaia con puntaje real, presupuestos claros (mano de obra + insumos) y reglas tipo Uber: quien contrata no paga comisión a la app; quien ofrece aporta el 10% a la plataforma al cerrar el laburo.</p>
+      <p>Plataforma para contratar oficios de construcción y reparación en Ushuaia con puntaje real, presupuestos claros (mano de obra + insumos de ferreterías locales, con o sin que te traigan el repuesto) y reglas tipo Uber: quien contrata no paga comisión a la app; quien ofrece aporta el 10% a la plataforma al cerrar el laburo.</p>
     </div>
     <h1>¿Qué necesitás?</h1>
     <p class="muted">Reparar algo existente o construir de cero. Después ves profesionales con puntaje y celular.</p>
@@ -124,8 +128,20 @@
     <p id="presuPro" class="muted"></p>
     <div class="card form">
       <label>Descripción del trabajo<textarea id="presuDesc" rows="3"></textarea></label>
-      <label>Mano de obra (estimada)<input id="presuMano" type="number" min="0" step="1000" value="80000" /></label>
-      <label>Insumos / materiales<input id="presuInsumos" type="number" min="0" step="1000" value="45000" /></label>
+      <label>Ferretería
+        <select id="presuFerre"></select>
+      </label>
+      <label>Insumo / repuesto
+        <select id="presuItem"></select>
+      </label>
+      <fieldset class="mods">
+        <legend>¿Quién consigue el repuesto?</legend>
+        <label class="check"><input type="radio" name="repuesto" value="yo" checked /> Lo busco yo (no suma traslado)</label>
+        <label class="check"><input type="radio" name="repuesto" value="pro" /> Que lo traiga el profesional (+ traslado)</label>
+      </fieldset>
+      <label>Mano de obra<input id="presuMano" type="number" min="0" step="1000" value="80000" /></label>
+      <label>Insumos (según ferretería)<input id="presuInsumos" type="number" min="0" step="1000" value="0" readonly /></label>
+      <label>Traslado / búsqueda de repuesto<input id="presuTraslado" type="number" min="0" step="500" value="0" readonly /></label>
       <div class="totales">
         <div><span>Subtotal</span><strong id="presuSub">$0</strong></div>
         <div><span>Comisión plataforma (10%)</span><strong id="presuComision">$0</strong></div>
@@ -149,13 +165,25 @@
     </div>
   </section>
 
+
+  <section id="view-ferre" class="wrap view hidden">
+    <h1>Panel ferretería</h1>
+    <p class="muted">Cargá precios y stock. Los clientes y profesionales los ven al armar el presupuesto.</p>
+    <div class="card form">
+      <label>Nombre del local <input id="ferreNombre" placeholder="Ferretería Ejemplo" /></label>
+      <div id="ferreLista"></div>
+      <button type="button" class="btn primary" id="btnFerreSave">Guardar lista (demo)</button>
+      <p class="muted tiny">En producción esto se actualiza desde el mail/cuenta del local.</p>
+    </div>
+  </section>
+
   <dialog id="modal">
     <article id="modalBody"></article>
     <form method="dialog" class="row"><button class="btn ghost">Cerrar</button></form>
   </dialog>
 
   <footer class="foot">
-    <span>Obras Ya · v0.3</span>
+    <span>Obras Ya · v0.4</span>
     <button type="button" class="linkish" id="btnVerTyC">Ver Términos</button>
     <span>Contratar gratis · Ofrecer ~10% a la plataforma</span>
   </footer>
