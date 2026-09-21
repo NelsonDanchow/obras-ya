@@ -118,3 +118,22 @@ dialog::backdrop { background: rgba(0,0,0,.55); }
 .totales .big { font-size: 1.1rem; border-top: 1px solid var(--line); padding-top: .5rem; }
 .tiny { font-size: .8rem; }
 .block { display: flex; flex-direction: column; gap: .35rem; margin: 1rem 0; color: var(--muted); font-size: .85rem; }
+
+.role-card.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.role-grid.compact { margin: .5rem 0 1rem; }
+.labelish { color: var(--muted); font-size: .9rem; margin: .5rem 0; }
+.legal-box {
+  border: 1px solid var(--line); border-radius: 12px; padding: .75rem;
+  margin: 1rem 0; background: #0f172a;
+}
+.legal-box h3 { margin: 0 0 .5rem; font-size: 1rem; }
+.legal-scroll {
+  max-height: 160px; overflow: auto; white-space: pre-wrap; font-size: .78rem;
+  color: var(--muted); line-height: 1.45; border: 1px solid var(--line);
+  border-radius: 8px; padding: .6rem; margin-bottom: .75rem;
+}
+.check { display: flex; gap: .55rem; align-items: flex-start; font-size: .85rem; color: var(--text); margin: .45rem 0; }
+.check input { margin-top: .2rem; }
+.legal-pre {
+  white-space: pre-wrap; font-size: .8rem; color: var(--muted); max-height: 50vh; overflow: auto;
+}

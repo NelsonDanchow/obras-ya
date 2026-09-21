@@ -17,48 +17,78 @@
     </div>
     <nav>
       <span id="userChip" class="chip hidden"></span>
-      <button type="button" class="btn ghost" id="btnAuth">Entrar</button>
+      <button type="button" class="btn ghost hidden" id="btnSwitch">Cambiar modo</button>
+      <button type="button" class="btn ghost" id="btnAuth">Crear cuenta / Entrar</button>
     </nav>
   </header>
 
-  <!-- LOGIN -->
   <section id="view-login" class="wrap view hidden">
-    <h1>Entrar a Obras Ya</h1>
-    <p class="muted">Elegí cómo vas a usar la app.</p>
-    <div class="role-grid">
-      <button type="button" class="role-card" data-role="cliente">
-        <h2>Cliente</h2>
-        <p>Quiero reparar o construir algo en mi casa. Sin costo de app.</p>
-      </button>
-      <button type="button" class="role-card" data-role="profesional">
-        <h2>Profesional</h2>
-        <p>Ofrezco oficios. Comisión ~10% cuando cerrás un laburo.</p>
-      </button>
-    </div>
-    <div id="loginForm" class="card form hidden">
+    <h1>Tu cuenta en Obras Ya</h1>
+    <p class="muted">Como en Uber: podés <strong>contratar</strong> y también <strong>ofrecer</strong> servicios. Un electricista puede necesitar un plomero.</p>
+
+    <div class="card form">
       <label>Nombre <input id="loginName" placeholder="Tu nombre" /></label>
       <label>Celular <input id="loginPhone" placeholder="2901…" /></label>
-      <button type="button" class="btn primary" id="btnLoginGo">Continuar</button>
+
+      <p class="labelish">¿Cómo querés empezar hoy?</p>
+      <div class="role-grid compact">
+        <button type="button" class="role-card" data-role="cliente" id="pickCliente">
+          <h2>Quiero contratar</h2>
+          <p>Adquirir un servicio para mi casa. Sin costo de app.</p>
+        </button>
+        <button type="button" class="role-card" data-role="profesional" id="pickPro">
+          <h2>Quiero ofrecer servicios</h2>
+          <p>Soy oficinista de oficio. Comisión del 10% a la plataforma por laburo cerrado.</p>
+        </button>
+      </div>
+      <p class="muted tiny">Después podés cambiar de modo cuando quieras (contratar ↔ ofrecer).</p>
+
+      <div id="proExtra" class="hidden">
+        <label>Tu rubro principal
+          <select id="loginRubro">
+            <option>Electricidad</option>
+            <option>Gas / estufas</option>
+            <option>Plomería</option>
+            <option>Pintura</option>
+            <option>Albañilería</option>
+            <option>Otro</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="legal-box">
+        <h3>Términos y condiciones de Obras Ya</h3>
+        <div class="legal-scroll" id="legalText"></div>
+        <label class="check">
+          <input type="checkbox" id="aceptoTyC" />
+          Leí y acepto los Términos y Condiciones de la plataforma Obras Ya.
+        </label>
+        <label class="check" id="aceptoComisionWrap">
+          <input type="checkbox" id="aceptoComision" />
+          Si ofrezco servicios, acepto que por cada trabajo cerrado a través de Obras Ya, la plataforma retenga el <strong>10%</strong> del monto total del servicio en concepto de comisión de intermediación.
+        </label>
+      </div>
+
+      <button type="button" class="btn primary" id="btnLoginGo">Firmar y continuar</button>
+      <p class="muted tiny">La aceptación queda registrada con fecha y hora (demo local). Más adelante se guarda en servidor con constancia legal.</p>
     </div>
   </section>
 
-  <!-- HOME CLIENTE: tipo de obra -->
   <section id="view-home" class="wrap view">
     <h1>¿Qué necesitás?</h1>
-    <p class="muted">Empezá simple. Después elegís el detalle y ves quién puede hacerlo.</p>
+    <p class="muted">Reparar algo existente o construir de cero. Después ves profesionales con puntaje y celular.</p>
     <div class="role-grid">
       <button type="button" class="role-card" id="btnReparacion">
         <h2>Reparación</h2>
-        <p>Estufa, canilla, pintura, electricidad… algo que ya existe y hay que arreglar.</p>
+        <p>Estufa, canilla, pintura, electricidad…</p>
       </button>
       <button type="button" class="role-card" id="btnConstruccion">
         <h2>Construcción de cero</h2>
-        <p>Obra nueva o ampliación: baño nuevo, paredes, etc.</p>
+        <p>Obra nueva o ampliación.</p>
       </button>
     </div>
   </section>
 
-  <!-- DETALLE: qué reparar / construir -->
   <section id="view-detalle" class="wrap view hidden">
     <button type="button" class="linkish" data-back="home">← Volver</button>
     <h1 id="detalleTitle">¿Qué querés reparar?</h1>
@@ -69,7 +99,6 @@
     <button type="button" class="btn primary" id="btnVerProfesionales">Ver profesionales</button>
   </section>
 
-  <!-- CATÁLOGO -->
   <section id="view-catalogo" class="wrap view hidden">
     <button type="button" class="linkish" data-back="detalle">← Volver</button>
     <h1 id="catalogoTitle">Profesionales</h1>
@@ -77,39 +106,34 @@
     <div id="grid" class="grid"></div>
   </section>
 
-  <!-- PRESUPUESTO -->
   <section id="view-presupuesto" class="wrap view hidden">
     <button type="button" class="linkish" data-back="catalogo">← Volver al catálogo</button>
     <h1>Presupuesto</h1>
     <p id="presuPro" class="muted"></p>
     <div class="card form">
-      <label>Descripción del trabajo
-        <textarea id="presuDesc" rows="3"></textarea>
-      </label>
-      <label>Mano de obra (estimada)
-        <input id="presuMano" type="number" min="0" step="1000" value="80000" />
-      </label>
-      <label>Insumos / materiales (vos cargás ferretería después)
-        <input id="presuInsumos" type="number" min="0" step="1000" value="45000" />
-      </label>
+      <label>Descripción del trabajo<textarea id="presuDesc" rows="3"></textarea></label>
+      <label>Mano de obra (estimada)<input id="presuMano" type="number" min="0" step="1000" value="80000" /></label>
+      <label>Insumos / materiales<input id="presuInsumos" type="number" min="0" step="1000" value="45000" /></label>
       <div class="totales">
         <div><span>Subtotal</span><strong id="presuSub">$0</strong></div>
-        <div><span>Comisión app (10% al profesional)</span><strong id="presuComision">$0</strong></div>
-        <div class="big"><span>Total para el cliente</span><strong id="presuTotal">$0</strong></div>
-        <p class="muted tiny">El cliente no paga comisión extra. El 10% se descuenta del lado del profesional al cerrar el laburo.</p>
+        <div><span>Comisión plataforma (10%)</span><strong id="presuComision">$0</strong></div>
+        <div class="big"><span>Total para quien contrata</span><strong id="presuTotal">$0</strong></div>
+        <p class="muted tiny">Quien contrata no paga comisión extra a la app. El 10% lo aporta el profesional a <strong>Obras Ya</strong> al cerrar el trabajo.</p>
       </div>
       <button type="button" class="btn green" id="btnContratar">Solicitar contratación</button>
     </div>
   </section>
 
-  <!-- HOME PROFESIONAL -->
   <section id="view-pro" class="wrap view hidden">
-    <h1>Panel profesional</h1>
-    <p class="muted">Cuando cerrás un laburo, Obras Ya retiene ~10%.</p>
+    <h1>Modo ofrecer servicios</h1>
+    <p class="muted">Recibís pedidos de tu rubro. Al cerrar un laburo, Obras Ya retiene el 10% según los Términos que aceptaste.</p>
     <div class="card">
-      <p>Pedidos demo cerca tuyo: <strong>3</strong></p>
-      <p>Tu puntaje: <strong>★ 4.7</strong></p>
-      <button type="button" class="btn primary" id="btnVerComoCliente">Ver la app como cliente</button>
+      <p>Rubro: <strong id="proRubroLabel">—</strong></p>
+      <p>TyC aceptados: <strong id="proTyCLabel">—</strong></p>
+      <p>Pedidos demo: <strong>3</strong> · Puntaje demo: <strong>★ 4.7</strong></p>
+      <div class="row">
+        <button type="button" class="btn primary" id="btnNecesitoServicio">Necesito un servicio (cambiar a contratar)</button>
+      </div>
     </div>
   </section>
 
@@ -119,9 +143,11 @@
   </dialog>
 
   <footer class="foot">
-    <span>Obras Ya · v0.1</span>
-    <span>Cliente gratis · Pro ~10%</span>
+    <span>Obras Ya · v0.2</span>
+    <button type="button" class="linkish" id="btnVerTyC">Ver Términos</button>
+    <span>Contratar gratis · Ofrecer ~10% a la plataforma</span>
   </footer>
+  <script src="terminos.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

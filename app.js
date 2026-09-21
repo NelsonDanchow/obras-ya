@@ -10,10 +10,12 @@ const opcionesReparacion = ["Estufa / calefacción", "Electricidad", "Plomería 
 const opcionesConstruccion = ["Baño de cero", "Ampliación", "Paredes / revoque", "Instalación eléctrica nueva", "Otro"];
 
 const state = {
-  role: null,
+  mode: null, // contratar | ofrecer
   name: "",
   phone: "",
-  tipo: null, // reparacion | construccion
+  rubro: "",
+  tycAt: null,
+  tipo: null,
   detalle: "",
   profesionalId: null,
 };
@@ -36,14 +38,30 @@ function stars(n) {
 function updateChip() {
   const chip = $("userChip");
   const btn = $("btnAuth");
-  if (state.name && state.role) {
-    chip.textContent = `${state.name} · ${state.role}`;
+  const sw = $("btnSwitch");
+  if (state.name && state.mode) {
+    chip.textContent = `${state.name} · ${state.mode === "ofrecer" ? "ofrecer" : "contratar"}`;
     chip.classList.remove("hidden");
+    sw.classList.remove("hidden");
     btn.textContent = "Salir";
   } else {
     chip.classList.add("hidden");
-    btn.textContent = "Entrar";
+    sw.classList.add("hidden");
+    btn.textContent = "Crear cuenta / Entrar";
   }
+}
+
+function fillLegal() {
+  $("legalText").textContent = (window.OBRAS_YA_TYC || "").trim();
+}
+
+function selectMode(mode) {
+  state.mode = mode;
+  document.querySelectorAll(".role-card[data-role]").forEach((el) => {
+    el.classList.toggle("on", el.dataset.role === (mode === "ofrecer" ? "profesional" : "cliente"));
+  });
+  $("proExtra").classList.toggle("hidden", mode !== "ofrecer");
+  $("aceptoComisionWrap").classList.toggle("hidden", mode !== "ofrecer");
 }
 
 function renderDetalle() {
@@ -68,9 +86,7 @@ function matchProfesionales() {
 
 function renderCatalogo() {
   const list = matchProfesionales();
-  $("catalogoTitle").textContent = list.length
-    ? `Quién puede ayudarte`
-    : "Sin coincidencias exactas";
+  $("catalogoTitle").textContent = "Quién puede ayudarte";
   $("catalogoSub").textContent = state.detalle
     ? `Pedido: ${state.detalle} · ${state.tipo === "construccion" ? "Construcción" : "Reparación"}`
     : "";
@@ -103,7 +119,7 @@ function calcPresu() {
   const sub = mano + insumos;
   const comision = Math.round(sub * 0.1);
   $("presuSub").textContent = `$${sub.toLocaleString("es-AR")}`;
-  $("presuComision").textContent = `$${comision.toLocaleString("es-AR")} (del profesional)`;
+  $("presuComision").textContent = `$${comision.toLocaleString("es-AR")} → Obras Ya`;
   $("presuTotal").textContent = `$${sub.toLocaleString("es-AR")}`;
 }
 
@@ -115,8 +131,7 @@ function openPerfil(id) {
     <p class="muted">${p.rubro} · ${p.zona}</p>
     <p class="stars">${stars(p.rating)} ${p.rating}</p>
     <p>${p.bio}</p>
-    <p><a class="phone" href="tel:${p.telefono}">${p.telefono}</a></p>
-    <p class="muted">Reseñas ida y vuelta (próximo paso con datos reales).</p>`;
+    <p><a class="phone" href="tel:${p.telefono}">${p.telefono}</a></p>`;
   $("modal").showModal();
 }
 
@@ -131,38 +146,87 @@ function goPresupuesto(id) {
   show("presupuesto");
 }
 
-// Auth
-let pendingRole = null;
+function goModeHome() {
+  if (state.mode === "ofrecer") {
+    $("proRubroLabel").textContent = state.rubro || "—";
+    $("proTyCLabel").textContent = state.tycAt || "—";
+    show("pro");
+  } else {
+    show("home");
+  }
+}
+
 $("btnAuth").addEventListener("click", () => {
-  if (state.role) {
-    state.role = null;
-    state.name = "";
+  if (state.name) {
+    Object.assign(state, { mode: null, name: "", phone: "", rubro: "", tycAt: null });
     updateChip();
     show("home");
     return;
   }
+  fillLegal();
   show("login");
 });
 
-document.querySelectorAll(".role-card[data-role]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    pendingRole = btn.dataset.role;
-    $("loginForm").classList.remove("hidden");
-  });
-});
+$("pickCliente").addEventListener("click", () => selectMode("contratar"));
+$("pickPro").addEventListener("click", () => selectMode("ofrecer"));
 
 $("btnLoginGo").addEventListener("click", () => {
   const name = $("loginName").value.trim();
   const phone = $("loginPhone").value.trim();
-  if (!pendingRole || !name) {
-    alert("Elegí rol y escribí tu nombre.");
-    return;
+  if (!name) return alert("Escribí tu nombre.");
+  if (!state.mode) return alert("Elegí si querés contratar u ofrecer servicios.");
+  if (!$("aceptoTyC").checked) return alert("Tenés que aceptar los Términos y Condiciones.");
+  if (state.mode === "ofrecer" && !$("aceptoComision").checked) {
+    return alert("Como prestador, tenés que aceptar la comisión del 10% a favor de Obras Ya.");
   }
-  state.role = pendingRole;
   state.name = name;
   state.phone = phone;
+  state.rubro = $("loginRubro").value;
+  state.tycAt = new Date().toLocaleString("es-AR");
+  try {
+    localStorage.setItem(
+      "obrasya_user",
+      JSON.stringify({
+        name: state.name,
+        phone: state.phone,
+        mode: state.mode,
+        rubro: state.rubro,
+        tycAt: state.tycAt,
+        comision10: state.mode === "ofrecer",
+      })
+    );
+  } catch (_) {}
   updateChip();
-  show(pendingRole === "profesional" ? "pro" : "home");
+  goModeHome();
+});
+
+$("btnSwitch").addEventListener("click", () => {
+  if (!state.name) return;
+  state.mode = state.mode === "ofrecer" ? "contratar" : "ofrecer";
+  if (state.mode === "ofrecer" && !localStorage.getItem("obrasya_user")) {
+    /* already registered */
+  }
+  // If switching to ofrecer without commission accept in this session, re-check stored flag
+  try {
+    const saved = JSON.parse(localStorage.getItem("obrasya_user") || "{}");
+    if (state.mode === "ofrecer" && !saved.comision10) {
+      alert("Para ofrecer servicios tenés que reaceptar la comisión del 10%. Te llevo al alta.");
+      selectMode("ofrecer");
+      fillLegal();
+      show("login");
+      return;
+    }
+    saved.mode = state.mode;
+    localStorage.setItem("obrasya_user", JSON.stringify(saved));
+  } catch (_) {}
+  updateChip();
+  goModeHome();
+});
+
+$("btnNecesitoServicio").addEventListener("click", () => {
+  state.mode = "contratar";
+  updateChip();
+  show("home");
 });
 
 $("btnReparacion").addEventListener("click", () => {
@@ -187,13 +251,7 @@ $("detalleOptions").addEventListener("click", (e) => {
 
 $("btnVerProfesionales").addEventListener("click", () => {
   state.detalle = $("detalleLibre").value.trim() || state.detalle;
-  if (!state.detalle) {
-    alert("Contanos qué querés reparar o construir.");
-    return;
-  }
-  if (!state.role) {
-    // permitir mirar catálogo, pero sugerir login
-  }
+  if (!state.detalle) return alert("Contanos qué querés reparar o construir.");
   renderCatalogo();
   show("catalogo");
 });
@@ -202,33 +260,47 @@ $("grid").addEventListener("click", (e) => {
   const perfil = e.target.closest("[data-perfil]");
   const presu = e.target.closest("[data-presu]");
   if (perfil) openPerfil(Number(perfil.dataset.perfil));
-  if (presu) {
-    if (state.role !== "cliente") {
-      alert("Entrá como cliente para pedir presupuesto (demo: igual te dejo seguir).");
-    }
-    goPresupuesto(Number(presu.dataset.presu));
-  }
+  if (presu) goPresupuesto(Number(presu.dataset.presu));
 });
 
-["presuMano", "presuInsumos"].forEach((id) => {
-  $(id).addEventListener("input", calcPresu);
-});
+["presuMano", "presuInsumos"].forEach((id) => $(id).addEventListener("input", calcPresu));
 
 $("btnContratar").addEventListener("click", () => {
   const p = prestadores.find((x) => x.id === state.profesionalId);
-  const sub =
-    (Number($("presuMano").value) || 0) + (Number($("presuInsumos").value) || 0);
+  const sub = (Number($("presuMano").value) || 0) + (Number($("presuInsumos").value) || 0);
   const comision = Math.round(sub * 0.1);
   alert(
-    `Solicitud enviada a ${p.nombre}.\nTotal cliente: $${sub.toLocaleString("es-AR")} (sin comisión extra).\nAl cerrar el laburo, el profesional aporta ~$${comision.toLocaleString("es-AR")} (10%) a Obras Ya.`
+    `Solicitud enviada a ${p.nombre}.\nTotal para quien contrata: $${sub.toLocaleString("es-AR")}.\nComisión de la plataforma Obras Ya (10% a cargo del profesional al cerrar): $${comision.toLocaleString("es-AR")}.`
   );
 });
-
-$("btnVerComoCliente").addEventListener("click", () => show("home"));
 
 document.querySelectorAll("[data-back]").forEach((b) => {
   b.addEventListener("click", () => show(b.dataset.back));
 });
 
-updateChip();
-show("home");
+$("btnVerTyC").addEventListener("click", () => {
+  fillLegal();
+  $("modalBody").innerHTML = `<h2>Términos y condiciones</h2><pre class="legal-pre"></pre>`;
+  $("modalBody").querySelector("pre").textContent = (window.OBRAS_YA_TYC || "").trim();
+  $("modal").showModal();
+});
+
+// restore
+try {
+  const saved = JSON.parse(localStorage.getItem("obrasya_user") || "null");
+  if (saved && saved.name) {
+    state.name = saved.name;
+    state.phone = saved.phone;
+    state.mode = saved.mode || "contratar";
+    state.rubro = saved.rubro || "";
+    state.tycAt = saved.tycAt || null;
+    updateChip();
+    goModeHome();
+  } else {
+    updateChip();
+    show("home");
+  }
+} catch (_) {
+  updateChip();
+  show("home");
+}
