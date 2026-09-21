@@ -27,8 +27,16 @@
     <p class="muted">Como en Uber: podés <strong>contratar</strong> y también <strong>ofrecer</strong> servicios. Un electricista puede necesitar un plomero.</p>
 
     <div class="card form">
-      <label>Nombre <input id="loginName" placeholder="Tu nombre" /></label>
-      <label>Celular <input id="loginPhone" placeholder="2901…" /></label>
+      <label>Nombre <input id="loginName" placeholder="Tu nombre" required /></label>
+      <label>Celular <input id="loginPhone" type="tel" placeholder="2901…" required /></label>
+      <label>Email <input id="loginEmail" type="email" placeholder="tu@mail.com" required /></label>
+
+      <div class="social">
+        <p class="labelish">O verificá identidad con</p>
+        <button type="button" class="btn social-btn" id="btnGoogle">Continuar con Google</button>
+        <button type="button" class="btn social-btn" id="btnApple">Continuar con Apple</button>
+        <p class="muted tiny">Así reducimos cuentas falsas. En producción esto abre el login real de Google/Apple.</p>
+      </div>
 
       <p class="labelish">¿Cómo querés empezar hoy?</p>
       <div class="role-grid compact">
@@ -75,6 +83,10 @@
   </section>
 
   <section id="view-home" class="wrap view">
+    <div class="intro card">
+      <h2>Qué es Obras Ya</h2>
+      <p>Plataforma para contratar oficios de construcción y reparación en Ushuaia con puntaje real, presupuestos claros (mano de obra + insumos) y reglas tipo Uber: quien contrata no paga comisión a la app; quien ofrece aporta el 10% a la plataforma al cerrar el laburo.</p>
+    </div>
     <h1>¿Qué necesitás?</h1>
     <p class="muted">Reparar algo existente o construir de cero. Después ves profesionales con puntaje y celular.</p>
     <div class="role-grid">
@@ -143,7 +155,7 @@
   </dialog>
 
   <footer class="foot">
-    <span>Obras Ya · v0.2</span>
+    <span>Obras Ya · v0.3</span>
     <button type="button" class="linkish" id="btnVerTyC">Ver Términos</button>
     <span>Contratar gratis · Ofrecer ~10% a la plataforma</span>
   </footer>

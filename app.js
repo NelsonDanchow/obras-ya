@@ -13,6 +13,7 @@ const state = {
   mode: null, // contratar | ofrecer
   name: "",
   phone: "",
+  email: "",
   rubro: "",
   tycAt: null,
   tipo: null,
@@ -158,7 +159,8 @@ function goModeHome() {
 
 $("btnAuth").addEventListener("click", () => {
   if (state.name) {
-    Object.assign(state, { mode: null, name: "", phone: "", rubro: "", tycAt: null });
+    Object.assign(state, { mode: null, name: "", phone: "",
+  email: "", rubro: "", tycAt: null });
     updateChip();
     show("home");
     return;
@@ -173,7 +175,10 @@ $("pickPro").addEventListener("click", () => selectMode("ofrecer"));
 $("btnLoginGo").addEventListener("click", () => {
   const name = $("loginName").value.trim();
   const phone = $("loginPhone").value.trim();
+  const email = $("loginEmail").value.trim();
   if (!name) return alert("Escribí tu nombre.");
+  if (!phone) return alert("Escribí tu celular.");
+  if (!email || !email.includes("@")) return alert("Escribí un email válido.");
   if (!state.mode) return alert("Elegí si querés contratar u ofrecer servicios.");
   if (!$("aceptoTyC").checked) return alert("Tenés que aceptar los Términos y Condiciones.");
   if (state.mode === "ofrecer" && !$("aceptoComision").checked) {
@@ -181,6 +186,7 @@ $("btnLoginGo").addEventListener("click", () => {
   }
   state.name = name;
   state.phone = phone;
+  state.email = email;
   state.rubro = $("loginRubro").value;
   state.tycAt = new Date().toLocaleString("es-AR");
   try {
@@ -189,6 +195,7 @@ $("btnLoginGo").addEventListener("click", () => {
       JSON.stringify({
         name: state.name,
         phone: state.phone,
+        email: state.email,
         mode: state.mode,
         rubro: state.rubro,
         tycAt: state.tycAt,
@@ -285,12 +292,34 @@ $("btnVerTyC").addEventListener("click", () => {
   $("modal").showModal();
 });
 
+
+function socialLogin(provider) {
+  const name = $("loginName").value.trim() || "Usuario " + provider;
+  const email = $("loginEmail").value.trim() || ("demo@" + provider.toLowerCase() + ".com");
+  if (!state.mode) {
+    alert("Primero elegí si querés contratar u ofrecer.");
+    return;
+  }
+  if (!$("aceptoTyC").checked) return alert("Aceptá los Términos y Condiciones.");
+  if (state.mode === "ofrecer" && !$("aceptoComision").checked) {
+    return alert("Aceptá la comisión del 10% a favor de Obras Ya.");
+  }
+  $("loginName").value = name;
+  $("loginEmail").value = email;
+  if (!$("loginPhone").value.trim()) $("loginPhone").value = "2901-000000";
+  alert("Demo: en producción acá abre el login real de " + provider + " para verificar que la persona existe.");
+  $("btnLoginGo").click();
+}
+$("btnGoogle").addEventListener("click", () => socialLogin("Google"));
+$("btnApple").addEventListener("click", () => socialLogin("Apple"));
+
 // restore
 try {
   const saved = JSON.parse(localStorage.getItem("obrasya_user") || "null");
   if (saved && saved.name) {
     state.name = saved.name;
     state.phone = saved.phone;
+    state.email = saved.email || "";
     state.mode = saved.mode || "contratar";
     state.rubro = saved.rubro || "";
     state.tycAt = saved.tycAt || null;
