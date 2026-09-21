@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Obras Ya — Ushuaia</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="logo">OY</span>
+      <div>
+        <strong>Obras Ya</strong>
+        <p>Ushuaia · oficios de confianza</p>
+      </div>
+    </div>
+    <nav>
+      <a href="#catalogo" class="active">Catálogo</a>
+      <a href="#como">Cómo funciona</a>
+      <button type="button" class="btn ghost" id="btnLogin">Entrar</button>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Contratá oficios con puntaje real</h1>
+    <p>Pintores, electricistas, gasistas, plomeros y más. Mirá historial, reseñas y presupuestos tentativa.</p>
+    <div class="search">
+      <input id="q" type="search" placeholder="¿Qué necesitás? ej. estufa, baño, pintar…" />
+      <select id="rubro">
+        <option value="">Todos los rubros</option>
+        <option>Electricidad</option>
+        <option>Gas / estufas</option>
+        <option>Plomería</option>
+        <option>Pintura</option>
+        <option>Albañilería</option>
+      </select>
+      <button type="button" class="btn primary" id="btnBuscar">Buscar</button>
+    </div>
+  </section>
+
+  <main id="catalogo" class="wrap">
+    <div class="section-head">
+      <h2>Prestadores en Ushuaia</h2>
+      <p class="muted">Esqueleto · datos de ejemplo</p>
+    </div>
+    <div id="grid" class="grid"></div>
+  </main>
+
+  <section id="como" class="wrap how">
+    <h2>Cómo funciona</h2>
+    <ol>
+      <li>Elegís rubro y mirás puntajes + reseñas.</li>
+      <li>Pedís presupuesto (mano de obra + insumos).</li>
+      <li>Contratás. Vos no pagás comisión a la app; el profesional aporta ~10%.</li>
+      <li>Al cerrar, se puntúan los dos lados (como Uber).</li>
+    </ol>
+  </section>
+
+  <dialog id="modal">
+    <article id="modalBody"></article>
+    <form method="dialog"><button class="btn ghost">Cerrar</button></form>
+  </dialog>
+
+  <footer class="foot">
+    <span>Obras Ya · esqueleto v0</span>
+    <span>Cliente gratis · Profesional ~10%</span>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>
