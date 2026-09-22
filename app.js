@@ -55,6 +55,9 @@ const state = {
   detalle: "",
   profesionalId: null,
   pedidoCart: [],
+  social: null,
+  verified: false,
+  otp: null,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -78,7 +81,7 @@ function updateChip() {
   const sw = $("btnSwitch");
   if (state.name && state.mode) {
     const modeLabel = state.mode === "ofrecer" ? "ofrecer" : state.mode === "ferreteria" ? "ferretería" : "contratar";
-    chip.textContent = `${state.name} · ${modeLabel}`;
+    chip.textContent = `${state.name} · ${modeLabel}${state.verified || (JSON.parse(localStorage.getItem("obrasya_user")||"{}").verified) ? " · ✓" : ""}`;
     chip.classList.remove("hidden");
     sw.classList.remove("hidden");
     btn.textContent = "Salir";
@@ -259,14 +262,15 @@ $("pickCliente").addEventListener("click", () => selectMode("contratar"));
 $("pickPro").addEventListener("click", () => selectMode("ofrecer"));
 $("pickFerre").addEventListener("click", () => selectMode("ferreteria"));
 
-$("btnLoginGo").addEventListener("click", () => {
+function sendOtp() {
   const name = $("loginName").value.trim();
   const phone = $("loginPhone").value.trim();
   const email = $("loginEmail").value.trim();
   if (!name) return alert("Escribí tu nombre.");
-  if (!phone) return alert("Escribí tu celular.");
+  if (!phone || phone.replace(/\D/g, "").length < 8) return alert("Celular inválido.");
   if (!email || !email.includes("@")) return alert("Escribí un email válido.");
   if (!state.mode) return alert("Elegí si querés contratar u ofrecer servicios.");
+  if (!state.social) return alert("Vinculá Google, Facebook o Instagram (son obligatorios junto al celular).");
   if (!$("aceptoTyC").checked) return alert("Tenés que aceptar los Términos y Condiciones.");
   if (state.mode === "ofrecer" && !$("aceptoComision").checked) {
     return alert("Como prestador, tenés que aceptar la comisión del 10% a favor de Obras Ya.");
@@ -275,6 +279,16 @@ $("btnLoginGo").addEventListener("click", () => {
   state.phone = phone;
   state.email = email;
   state.rubro = $("loginRubro").value;
+  state.otp = String(Math.floor(100000 + Math.random() * 900000));
+  $("otpPhoneLabel").textContent = phone;
+  $("otpBox").classList.remove("hidden");
+  $("otpHint").textContent = "Demo SMS: tu código es " + state.otp + " (en producción llega por SMS de verdad).";
+  $("otpCode").value = "";
+  $("otpCode").focus();
+}
+
+function finishRegister() {
+  state.verified = true;
   state.tycAt = new Date().toLocaleString("es-AR");
   try {
     localStorage.setItem(
@@ -283,16 +297,41 @@ $("btnLoginGo").addEventListener("click", () => {
         name: state.name,
         phone: state.phone,
         email: state.email,
+        social: state.social,
         mode: state.mode,
         rubro: state.rubro,
         tycAt: state.tycAt,
+        verified: true,
         comision10: state.mode === "ofrecer",
       })
     );
   } catch (_) {}
   updateChip();
   goModeHome();
+  alert("Cuenta verificada. Celular + " + (state.social || "red") + " vinculados.");
+}
+
+$("btnLoginGo").addEventListener("click", sendOtp);
+
+$("btnOtpOk")?.addEventListener("click", () => {
+  const code = $("otpCode").value.trim();
+  if (!state.otp) return alert("Pedí el código primero.");
+  if (code !== state.otp) return alert("Código incorrecto.");
+  finishRegister();
 });
+
+$("btnOtpResend")?.addEventListener("click", () => {
+  if (!state.phone) return;
+  sendOtp();
+});
+
+function pickSocial(name) {
+  state.social = name;
+  document.querySelectorAll(".social-btn").forEach((b) => b.classList.remove("on"));
+  const map = { Google: "btnGoogle", Facebook: "btnFacebook", Instagram: "btnInstagram" };
+  const el = $(map[name]);
+  if (el) el.classList.add("on");
+}
 
 $("btnSwitch").addEventListener("click", () => {
   if (!state.name) return;
@@ -464,7 +503,10 @@ $("btnContratar").addEventListener("click", () => {
   const sub = (Number($("presuMano").value) || 0) + (Number($("presuInsumos").value) || 0) + (Number($("presuTraslado").value) || 0);
   const comision = Math.round(sub * 0.1);
   alert(
-    `Solicitud enviada a ${p.nombre}.\nTotal para quien contrata: $${sub.toLocaleString("es-AR")}.\nComisión de la plataforma Obras Ya (10% a cargo del profesional al cerrar): $${comision.toLocaleString("es-AR")}.`
+    `Solicitud enviada a ${p.nombre}.\n` +
+      `Le llega aviso por WhatsApp (${p.telefono}) y/o email.\n` +
+      `Total: $${sub.toLocaleString("es-AR")}.\n` +
+      `(Cuando el prestador acepta, siguen en la app: chat, avance y pago.)`
   );
 });
 
@@ -568,8 +610,9 @@ function socialLogin(provider) {
   alert("Demo: en producción acá abre el login real de " + provider + " para verificar que la persona existe.");
   $("btnLoginGo").click();
 }
-$("btnGoogle").addEventListener("click", () => socialLogin("Google"));
-$("btnApple").addEventListener("click", () => socialLogin("Apple"));
+$("btnGoogle")?.addEventListener("click", () => pickSocial("Google"));
+$("btnFacebook")?.addEventListener("click", () => pickSocial("Facebook"));
+$("btnInstagram")?.addEventListener("click", () => pickSocial("Instagram"));
 
 // restore
 try {

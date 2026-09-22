@@ -164,3 +164,5 @@ dialog::backdrop { background: rgba(0,0,0,.55); }
 }
 
 .ferre-cat { margin: .75rem 0 1rem; max-height: 220px; overflow: auto; border: 1px solid var(--line); border-radius: 12px; padding: .5rem; }
+
+.social-btn.on { border-color: var(--accent); color: var(--accent); }
