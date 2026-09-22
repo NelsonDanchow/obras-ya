@@ -89,7 +89,7 @@
   <section id="view-home" class="wrap view">
     <div class="intro card">
       <h2>Qué es Obras Ya</h2>
-      <p>Plataforma para contratar oficios de construcción y reparación en Ushuaia con puntaje real, presupuestos claros (mano de obra + insumos de ferreterías locales, con o sin que te traigan el repuesto) y reglas tipo Uber: quien contrata no paga comisión a la app; quien ofrece aporta el 10% a la plataforma al cerrar el laburo.</p>
+      <p>Plataforma para contratar oficios de construcción y reparación en Ushuaia: puntaje real, presupuestos claros (mano de obra + insumos de ferreterías locales) y la opción de buscar el repuesto vos o que te lo traigan.</p>
     </div>
     <h1>¿Qué necesitás?</h1>
     <p class="muted">Reparar algo existente o construir de cero. Después ves profesionales con puntaje y celular.</p>
@@ -153,9 +153,11 @@
       </div>
       <div class="totales">
         <div><span>Subtotal</span><strong id="presuSub">$0</strong></div>
-        <div><span>Comisión plataforma (10%)</span><strong id="presuComision">$0</strong></div>
-        <div class="big"><span>Total para quien contrata</span><strong id="presuTotal">$0</strong></div>
-        <p class="muted tiny">Quien contrata no paga comisión extra a la app. El 10% lo aporta el profesional a <strong>Obras Ya</strong> al cerrar el trabajo.</p>
+        <div class="big"><span>Total</span><strong id="presuTotal">$0</strong></div>
+        <div id="presuComisionBox" class="hidden">
+          <div><span>Comisión plataforma (10%)</span><strong id="presuComision">$0</strong></div>
+          <p class="muted tiny">Este 10% lo ves solo como prestador: se descuenta de tu cobro al cerrar el laburo, a favor de Obras Ya.</p>
+        </div>
       </div>
       <button type="button" class="btn green" id="btnContratar">Solicitar contratación</button>
     </div>
@@ -185,11 +187,11 @@
       <button type="button" class="btn primary" id="btnFerreSave">Guardar catálogo</button>
       <hr class="sep" />
       <h3>Cargar desde Excel / CSV</h3>
-      <p class="muted tiny">Columnas: <code>nombre</code>, <code>precio</code>, <code>disponible</code> (si/no o 1/0). Podés exportar Excel a CSV (Guardar como → CSV).</p>
+      <p class="muted tiny">Columnas: <code>nombre</code>, <code>precio</code>, <code>disponible</code> (si/no). <strong>No hace falta cantidad</strong> (no “142 unidades”): solo si lo venden y está disponible ahora. Excel → Guardar como CSV.</p>
       <label class="file-btn">Elegir archivo CSV
         <input type="file" id="ferreCsv" accept=".csv,text/csv,.txt" hidden />
       </label>
-      <p class="muted tiny"><a href="ferre-modelo.csv" download>Descargar planilla modelo (CSV)</a></p>
+      <p class="muted tiny"><a href="ferre-modelo.xlsx" download>Descargar planilla Excel</a> · <a href="ferre-modelo.csv" download>CSV</a></p>
       <p id="ferreCsvStatus" class="muted tiny"></p>
       <p class="muted tiny">Modelo: pediles una planilla semanal por mail; vos la cargás acá o la cargan ellos con su cuenta.</p>
     </div>
@@ -201,9 +203,9 @@
   </dialog>
 
   <footer class="foot">
-    <span>Obras Ya · v0.6</span>
+    <span>Obras Ya · v0.9</span>
     <button type="button" class="linkish" id="btnVerTyC">Ver Términos</button>
-    <span>Contratar gratis · Ofrecer ~10% a la plataforma</span>
+    <span>Ushuaia · oficios de confianza</span>
   </footer>
   <script src="terminos.js"></script>
   <script src="app.js"></script>

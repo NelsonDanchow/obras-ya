@@ -156,3 +156,9 @@ dialog::backdrop { background: rgba(0,0,0,.55); }
 
 .sep { border: none; border-top: 1px solid var(--line); margin: 1.25rem 0; }
 .code, code { color: var(--accent); }
+
+.foto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin: .5rem 0 1rem; }
+.foto-slot {
+  background: #0f172a; border: 1px dashed var(--line); border-radius: 12px;
+  padding: 1.25rem .5rem; text-align: center; font-size: .85rem; color: var(--muted);
+}

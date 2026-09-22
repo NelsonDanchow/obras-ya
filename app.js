@@ -1,9 +1,9 @@
 const prestadores = [
-  { id: 1, nombre: "Lucía Méndez", rubro: "Gas / estufas", zona: "Centro", rating: 4.8, trabajos: 126, telefono: "2901-555001", bio: "Gasista matriculada. Estufas y calefactores.", tags: ["estufa", "gas", "calefactor", "reparación"] },
-  { id: 2, nombre: "Martín Quilaqueo", rubro: "Electricidad", zona: "Kaupen", rating: 4.6, trabajos: 89, telefono: "2901-555002", bio: "Tableros, luminarias, certificados.", tags: ["electricidad", "luz", "tablero", "reparación"] },
-  { id: 3, nombre: "Sofía Rivas", rubro: "Pintura", zona: "Héroes de Malvinas", rating: 4.9, trabajos: 210, telefono: "2901-555003", bio: "Interior/exterior, humedad.", tags: ["pintura", "pintar", "reparación", "construcción"] },
-  { id: 4, nombre: "Diego Álvarez", rubro: "Plomería", zona: "Centro", rating: 4.2, trabajos: 54, telefono: "2901-555004", bio: "Pérdidas, sanitarios, baños.", tags: ["plomería", "baño", "canilla", "reparación", "construcción"] },
-  { id: 5, nombre: "Equipo Norte Sur", rubro: "Albañilería", zona: "Toda la ciudad", rating: 4.5, trabajos: 67, telefono: "2901-555005", bio: "Refacciones y obra nueva chica.", tags: ["albañilería", "pared", "construcción", "reparación"] },
+  { id: 1, nombre: "Lucía Méndez", rubro: "Gas / estufas", zona: "Centro", rating: 4.8, trabajos: 126, telefono: "2901-555001", bio: "Gasista matriculada. Estufas y calefactores.", fotos: ["🔧 Estufa living", "🔥 Calefactor"], tags: ["estufa", "gas", "calefactor", "reparación"] },
+  { id: 2, nombre: "Martín Quilaqueo", rubro: "Electricidad", zona: "Kaupen", rating: 4.6, trabajos: 89, telefono: "2901-555002", bio: "Tableros, luminarias, certificados.", fotos: ["💡 Tablero", "🏠 Instalación"], tags: ["electricidad", "luz", "tablero", "reparación"] },
+  { id: 3, nombre: "Sofía Rivas", rubro: "Pintura", zona: "Héroes de Malvinas", rating: 4.9, trabajos: 210, telefono: "2901-555003", bio: "Interior/exterior, humedad.", fotos: ["🎨 Living", "🖌️ Frente"], tags: ["pintura", "pintar", "reparación", "construcción"] },
+  { id: 4, nombre: "Diego Álvarez", rubro: "Plomería", zona: "Centro", rating: 4.2, trabajos: 54, telefono: "2901-555004", bio: "Pérdidas, sanitarios, baños.", fotos: ["🚿 Baño", "🔧 Canilla"], tags: ["plomería", "baño", "canilla", "reparación", "construcción"] },
+  { id: 5, nombre: "Equipo Norte Sur", rubro: "Albañilería", zona: "Toda la ciudad", rating: 4.5, trabajos: 67, telefono: "2901-555005", bio: "Refacciones y obra nueva chica.", fotos: ["🧱 Revoque", "🏡 Ampliación"], tags: ["albañilería", "pared", "construcción", "reparación"] },
 ];
 
 
@@ -158,8 +158,9 @@ function calcPresu() {
   const sub = mano + insumos + traslado;
   const comision = Math.round(sub * 0.1);
   $("presuSub").textContent = `$${sub.toLocaleString("es-AR")}`;
-  $("presuComision").textContent = `$${comision.toLocaleString("es-AR")} → Obras Ya`;
+  if ($("presuComision")) $("presuComision").textContent = `$${comision.toLocaleString("es-AR")} → Obras Ya`;
   $("presuTotal").textContent = `$${sub.toLocaleString("es-AR")}`;
+  if ($("presuComisionBox")) $("presuComisionBox").classList.toggle("hidden", state.mode !== "ofrecer");
 }
 
 function openPerfil(id) {
@@ -170,7 +171,10 @@ function openPerfil(id) {
     <p class="muted">${p.rubro} · ${p.zona}</p>
     <p class="stars">${stars(p.rating)} ${p.rating}</p>
     <p>${p.bio}</p>
-    <p><a class="phone" href="tel:${p.telefono}">${p.telefono}</a></p>`;
+    <p><a class="phone" href="tel:${p.telefono}">${p.telefono}</a></p>
+    <h3>Trabajos (fotos)</h3>
+    <div class="foto-grid">${(p.fotos||[]).map((f)=>`<div class="foto-slot">${f}</div>`).join("") || "<p class=\"muted\">Sin fotos aún</p>"}</div>
+    <p class="muted tiny">En perfiles reales: subida de fotos del antes/después + puntaje por cada laburo cerrado.</p>`;
   $("modal").showModal();
 }
 
