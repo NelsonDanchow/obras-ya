@@ -58,10 +58,12 @@ const state = {
   social: null,
   verified: false,
   otp: null,
+  chatThread: [],
+  chatWith: null,
 };
 
 const $ = (id) => document.getElementById(id);
-const views = ["login", "home", "detalle", "catalogo", "presupuesto", "pro", "ferre", "pedido-ferre"];
+const views = ["login", "home", "detalle", "catalogo", "presupuesto", "pro", "ferre", "pedido-ferre", "chat"];
 
 function show(view) {
   views.forEach((v) => {
@@ -149,6 +151,7 @@ function renderCatalogo() {
       <div class="row">
         <button class="btn ghost" data-perfil="${p.id}">Ver perfil</button>
         <button class="btn primary" data-presu="${p.id}">Pedir presupuesto</button>
+        <button class="btn ghost" data-chat="${p.id}">Chat</button>
       </div>
     </article>`
     )
@@ -426,6 +429,58 @@ function renderPedidoCarrito() {
   $("pedidoGranTotal").textContent = money(sub + envio);
 }
 
+
+function openChat(proId) {
+  const p = prestadores.find((x) => x.id === proId);
+  if (!p) return;
+  state.chatWith = p;
+  if (!state.chatThread.length || state.chatThread[0]?.proId !== p.id) {
+    state.chatThread = [
+      { proId: p.id, from: "sistema", text: `Pedido enviado a ${p.nombre}. También le avisamos por WhatsApp/email (cuando esté conectado).`, at: new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }) },
+      { proId: p.id, from: "pro", text: `Hola${state.name ? ", " + state.name : ""}. Vi tu solicitud. Contame detalles o coordinamos visita.`, at: new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }) },
+    ];
+  }
+  $("chatTitle").textContent = "Chat con " + p.nombre;
+  $("chatSub").textContent = p.rubro + " · " + p.telefono;
+  renderChat();
+  show("chat");
+}
+
+function renderChat() {
+  const p = state.chatWith;
+  $("chatLog").innerHTML = state.chatThread
+    .filter((m) => !p || m.proId === p.id || m.from === "sistema")
+    .map((m) => {
+      const who = m.from === "yo" ? "Vos" : m.from === "pro" ? (p?.nombre || "Profesional") : "Obras Ya";
+      const cls = m.from === "yo" ? "me" : m.from === "sistema" ? "sys" : "them";
+      return `<div class="bubble ${cls}"><strong>${who}</strong><p>${m.text}</p><span>${m.at}</span></div>`;
+    })
+    .join("");
+  $("chatLog").scrollTop = $("chatLog").scrollHeight;
+}
+
+$("btnChatSend")?.addEventListener("click", () => {
+  const text = $("chatInput").value.trim();
+  if (!text || !state.chatWith) return;
+  const at = new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+  state.chatThread.push({ proId: state.chatWith.id, from: "yo", text, at });
+  $("chatInput").value = "";
+  renderChat();
+  setTimeout(() => {
+    state.chatThread.push({
+      proId: state.chatWith.id,
+      from: "pro",
+      text: "Recibido. Te confirmo disponibilidad y te paso el presupuesto cerrado acá en la app.",
+      at: new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }),
+    });
+    renderChat();
+  }, 700);
+});
+
+$("chatInput")?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") $("btnChatSend").click();
+});
+
 $("btnPedidoFerre")?.addEventListener("click", openPedidoFerre);
 
 $("pedidoCatalogo")?.addEventListener("click", (e) => {
@@ -494,6 +549,8 @@ $("grid").addEventListener("click", (e) => {
   const presu = e.target.closest("[data-presu]");
   if (perfil) openPerfil(Number(perfil.dataset.perfil));
   if (presu) goPresupuesto(Number(presu.dataset.presu));
+  const chatBtn = e.target.closest("[data-chat]");
+  if (chatBtn) openChat(Number(chatBtn.dataset.chat));
 });
 
 ["presuMano", "presuInsumos"].forEach((id) => $(id).addEventListener("input", calcPresu));
@@ -504,10 +561,11 @@ $("btnContratar").addEventListener("click", () => {
   const comision = Math.round(sub * 0.1);
   alert(
     `Solicitud enviada a ${p.nombre}.\n` +
-      `Le llega aviso por WhatsApp (${p.telefono}) y/o email.\n` +
+      `Aviso WhatsApp/email (cuando esté conectado).\n` +
       `Total: $${sub.toLocaleString("es-AR")}.\n` +
-      `(Cuando el prestador acepta, siguen en la app: chat, avance y pago.)`
+      `Te abrimos el chat in-app para coordinar.`
   );
+  openChat(p.id);
 });
 
 document.querySelectorAll("[data-back]").forEach((b) => {
