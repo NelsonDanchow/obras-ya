@@ -54,10 +54,11 @@ const state = {
   tipo: null,
   detalle: "",
   profesionalId: null,
+  pedidoCart: [],
 };
 
 const $ = (id) => document.getElementById(id);
-const views = ["login", "home", "detalle", "catalogo", "presupuesto", "pro", "ferre"];
+const views = ["login", "home", "detalle", "catalogo", "presupuesto", "pro", "ferre", "pedido-ferre"];
 
 function show(view) {
   views.forEach((v) => {
@@ -320,6 +321,106 @@ $("btnNecesitoServicio").addEventListener("click", () => {
   state.mode = "contratar";
   updateChip();
   show("home");
+});
+
+
+const ENVIO_BASE = 4500; // estimado viaje corto Ushuaia (demo)
+
+function money(n) {
+  return "$" + Number(n || 0).toLocaleString("es-AR");
+}
+
+function openPedidoFerre() {
+  const sel = $("pedidoFerreSelect");
+  sel.innerHTML = ferreterias.map((f) => `<option value="${f.id}">${f.nombre}</option>`).join("");
+  state.pedidoCart = [];
+  sel.onchange = () => {
+    state.pedidoCart = [];
+    renderPedidoCatalogo();
+    renderPedidoCarrito();
+  };
+  document.querySelectorAll('input[name="entrega"]').forEach((r) => {
+    r.onchange = () => {
+      $("dirWrap").classList.toggle("hidden", document.querySelector('input[name="entrega"]:checked')?.value !== "envio");
+      renderPedidoCarrito();
+    };
+  });
+  renderPedidoCatalogo();
+  renderPedidoCarrito();
+  show("pedido-ferre");
+}
+
+function renderPedidoCatalogo() {
+  const f = ferreterias.find((x) => x.id === $("pedidoFerreSelect").value) || ferreterias[0];
+  $("pedidoCatalogo").innerHTML = f.items
+    .filter((it) => it.stock > 0)
+    .map(
+      (it) => `<div class="ferre-row">
+        <span>${it.nombre}</span>
+        <strong>${money(it.precio)}</strong>
+        <button type="button" class="btn ghost" data-add="${it.id}" data-nombre="${it.nombre}" data-precio="${it.precio}">Agregar</button>
+      </div>`
+    )
+    .join("") || "<p class='muted'>Sin productos disponibles</p>";
+}
+
+function renderPedidoCarrito() {
+  const box = $("pedidoCarrito");
+  if (!state.pedidoCart.length) {
+    box.innerHTML = "Vacío — agregá productos del catálogo.";
+  } else {
+    box.innerHTML = state.pedidoCart
+      .map(
+        (it, i) => `<div class="ferre-row">
+          <span>${it.nombre} × ${it.cant}</span>
+          <strong>${money(it.precio * it.cant)}</strong>
+          <button type="button" class="btn ghost" data-del="${i}">Quitar</button>
+        </div>`
+      )
+      .join("");
+  }
+  const sub = state.pedidoCart.reduce((a, it) => a + it.precio * it.cant, 0);
+  const envioOn = document.querySelector('input[name="entrega"]:checked')?.value === "envio";
+  const envio = envioOn ? ENVIO_BASE : 0;
+  $("pedidoSub").textContent = money(sub);
+  $("pedidoEnvio").textContent = money(envio);
+  $("pedidoGranTotal").textContent = money(sub + envio);
+}
+
+$("btnPedidoFerre")?.addEventListener("click", openPedidoFerre);
+
+$("pedidoCatalogo")?.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-add]");
+  if (!b) return;
+  const id = b.dataset.add;
+  const found = state.pedidoCart.find((x) => x.id === id);
+  if (found) found.cant += 1;
+  else state.pedidoCart.push({ id, nombre: b.dataset.nombre, precio: Number(b.dataset.precio), cant: 1 });
+  renderPedidoCarrito();
+});
+
+$("pedidoCarrito")?.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-del]");
+  if (!b) return;
+  state.pedidoCart.splice(Number(b.dataset.del), 1);
+  renderPedidoCarrito();
+});
+
+$("btnConfirmarPedido")?.addEventListener("click", () => {
+  if (!state.pedidoCart.length) return alert("Agregá al menos un producto.");
+  const envioOn = document.querySelector('input[name="entrega"]:checked')?.value === "envio";
+  if (envioOn && !$("pedidoDir").value.trim()) return alert("Poné la dirección de entrega.");
+  const f = ferreterias.find((x) => x.id === $("pedidoFerreSelect").value);
+  const sub = state.pedidoCart.reduce((a, it) => a + it.precio * it.cant, 0);
+  const envio = envioOn ? ENVIO_BASE : 0;
+  alert(
+    `Pedido enviado a ${f.nombre}.\n` +
+      (envioOn
+        ? `Envío a domicilio: ${$("pedidoDir").value.trim()}\nCosto viaje estimado: ${money(envio)}\n`
+        : "Retiro en el local.\n") +
+      `Total encomienda: ${money(sub + envio)}\n` +
+      "(Demo) Después: aviso a la ferretería + viaje Uber/DiDi real."
+  );
 });
 
 $("btnReparacion").addEventListener("click", () => {

@@ -89,7 +89,7 @@
   <section id="view-home" class="wrap view">
     <div class="intro card">
       <h2>¿Querés arreglar o construir algo en tu casa?</h2>
-      <p>Pedí presupuesto, mirá profesionales con puntaje y consultá ferreterías de Ushuaia. Si buscás laburo, también podés ofrecer tu oficio.</p>
+      <p>Pedí presupuesto, mirá profesionales con puntaje, o armá un pedido a ferretería con retiro o envío a domicilio.</p>
     </div>
     <h1>Empezá acá</h1>
     <p class="muted">Elegí qué necesitás. En minutos ves a quién contratar.</p>
@@ -101,6 +101,10 @@
       <button type="button" class="role-card" id="btnConstruccion">
         <h2>Construcción de cero</h2>
         <p>Obra nueva o ampliación.</p>
+      </button>
+      <button type="button" class="role-card" id="btnPedidoFerre">
+        <h2>Pedido a ferretería</h2>
+        <p>Armá el pedido, retirá o pedí envío a domicilio.</p>
       </button>
     </div>
   </section>
@@ -197,13 +201,43 @@
     </div>
   </section>
 
+  
+  <section id="view-pedido-ferre" class="wrap view hidden">
+    <button type="button" class="linkish" data-back="home">← Volver</button>
+    <h1>Pedido a ferretería</h1>
+    <p class="muted">Como un pedido armado: elegís productos, la ferretería prepara, y podés retirar o pedir envío a domicilio.</p>
+    <div class="card form">
+      <label>Ferretería
+        <select id="pedidoFerreSelect"></select>
+      </label>
+      <div id="pedidoCatalogo" class="ferre-cat"></div>
+      <h3>Tu pedido</h3>
+      <div id="pedidoCarrito" class="muted tiny">Vacío</div>
+      <fieldset class="mods">
+        <legend>Entrega</legend>
+        <label class="check"><input type="radio" name="entrega" value="retiro" checked /> Retiro en el local (sin costo de envío)</label>
+        <label class="check"><input type="radio" name="entrega" value="envio" /> Envío a domicilio (+ costo de viaje)</label>
+      </fieldset>
+      <label id="dirWrap" class="block hidden">Dirección de entrega
+        <input id="pedidoDir" placeholder="Calle, número, barrio — Ushuaia" />
+      </label>
+      <div class="totales">
+        <div><span>Productos</span><strong id="pedidoSub">$0</strong></div>
+        <div><span>Envío (viaje)</span><strong id="pedidoEnvio">$0</strong></div>
+        <div class="big"><span>Total encomienda</span><strong id="pedidoGranTotal">$0</strong></div>
+        <p class="muted tiny">El envío se estima como un viaje tipo Uber/DiDi en la ciudad. Después se puede enlazar tarifa real.</p>
+      </div>
+      <button type="button" class="btn green" id="btnConfirmarPedido">Confirmar pedido</button>
+    </div>
+  </section>
+
   <dialog id="modal">
     <article id="modalBody"></article>
     <form method="dialog" class="row"><button class="btn ghost">Cerrar</button></form>
   </dialog>
 
   <footer class="foot">
-    <span>Obras Ya · v1.0</span>
+    <span>Obras Ya · v1.1</span>
     <button type="button" class="linkish" id="btnVerTyC">Ver Términos</button>
     <span>Ushuaia · oficios de confianza</span>
   </footer>
