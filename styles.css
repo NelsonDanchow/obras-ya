@@ -153,3 +153,6 @@ dialog::backdrop { background: rgba(0,0,0,.55); }
   display: grid; grid-template-columns: 1fr auto auto; gap: .75rem;
   padding: .45rem 0; border-bottom: 1px solid var(--line); font-size: .9rem;
 }
+
+.sep { border: none; border-top: 1px solid var(--line); margin: 1.25rem 0; }
+.code, code { color: var(--accent); }

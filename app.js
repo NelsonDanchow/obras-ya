@@ -381,6 +381,49 @@ $("presuRetiro")?.addEventListener("change", () => {
   }
 });
 
+
+function parseCsv(text) {
+  const lines = text.replace(/^\uFEFF/, "").trim().split(/\r?\n/).filter(Boolean);
+  if (lines.length < 2) throw new Error("Archivo vacío");
+  const sep = lines[0].includes(";") ? ";" : ",";
+  const headers = lines[0].split(sep).map((h) => h.trim().toLowerCase());
+  const iNom = headers.findIndex((h) => h.includes("nombre") || h === "producto" || h === "item");
+  const iPre = headers.findIndex((h) => h.includes("precio") || h.includes("price"));
+  const iDisp = headers.findIndex((h) => h.includes("disponible") || h.includes("stock") || h === "ok");
+  if (iNom < 0 || iPre < 0) throw new Error("Faltan columnas nombre y precio");
+  const items = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(sep).map((c) => c.trim().replace(/^"|"$/g, ""));
+    const nombre = cols[iNom];
+    const precio = Number(String(cols[iPre]).replace(/[^0-9.,]/g, "").replace(",", "."));
+    if (!nombre || !precio) continue;
+    let stock = 1;
+    if (iDisp >= 0) {
+      const d = String(cols[iDisp] || "").toLowerCase();
+      stock = d === "0" || d === "no" || d === "false" || d === "agotado" ? 0 : 1;
+    }
+    items.push({ id: "csv-" + i, nombre, precio, stock });
+  }
+  if (!items.length) throw new Error("No se leyeron productos");
+  return items;
+}
+
+$("ferreCsv")?.addEventListener("change", async () => {
+  const file = $("ferreCsv").files && $("ferreCsv").files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const items = parseCsv(text);
+    ferreterias[0].items = items;
+    if ($("ferreNombre").value) ferreterias[0].nombre = $("ferreNombre").value;
+    renderFerrePanel();
+    $("ferreCsvStatus").textContent = `Cargados ${items.length} productos desde ${file.name}`;
+  } catch (err) {
+    $("ferreCsvStatus").textContent = "Error: " + err.message;
+  }
+  $("ferreCsv").value = "";
+});
+
 $("btnFerreSave")?.addEventListener("click", () => {
   const f = ferreterias[0];
   f.nombre = $("ferreNombre").value || f.nombre;

@@ -183,7 +183,15 @@
       <p class="muted">No hace falta contar cada clavo: marcá si el producto <strong>está disponible</strong> y a qué precio. Eso evita visitas al pedo.</p>
       <div id="ferreLista"></div>
       <button type="button" class="btn primary" id="btnFerreSave">Guardar catálogo</button>
-      <p class="muted tiny">La ferretería entra con su mail y actualiza cuando cambia un precio o se agota un ítem. Después se puede sumar carga por Excel o enlace a su sistema.</p>
+      <hr class="sep" />
+      <h3>Cargar desde Excel / CSV</h3>
+      <p class="muted tiny">Columnas: <code>nombre</code>, <code>precio</code>, <code>disponible</code> (si/no o 1/0). Podés exportar Excel a CSV (Guardar como → CSV).</p>
+      <label class="file-btn">Elegir archivo CSV
+        <input type="file" id="ferreCsv" accept=".csv,text/csv,.txt" hidden />
+      </label>
+      <p class="muted tiny"><a href="ferre-modelo.csv" download>Descargar planilla modelo (CSV)</a></p>
+      <p id="ferreCsvStatus" class="muted tiny"></p>
+      <p class="muted tiny">Modelo: pediles una planilla semanal por mail; vos la cargás acá o la cargan ellos con su cuenta.</p>
     </div>
   </section>
 
@@ -193,7 +201,7 @@
   </dialog>
 
   <footer class="foot">
-    <span>Obras Ya · v0.5</span>
+    <span>Obras Ya · v0.6</span>
     <button type="button" class="linkish" id="btnVerTyC">Ver Términos</button>
     <span>Contratar gratis · Ofrecer ~10% a la plataforma</span>
   </footer>
