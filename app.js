@@ -202,8 +202,12 @@ function goModeHome() {
 function renderFerrePanel() {
   const f = ferreterias[0];
   if ($("ferreNombre") && !$("ferreNombre").value) $("ferreNombre").value = f.nombre;
-  $("ferreLista").innerHTML = f.items.map((it) =>
-    `<div class="ferre-row"><span>${it.nombre}</span><strong>$${it.precio.toLocaleString("es-AR")}</strong><span class="muted">stock ${it.stock}</span></div>`
+  $("ferreLista").innerHTML = f.items.map((it, idx) =>
+    `<div class="ferre-row">
+      <span>${it.nombre}</span>
+      <input type="number" data-ferre-precio="${idx}" value="${it.precio}" style="width:7rem" />
+      <label class="check" style="margin:0"><input type="checkbox" data-ferre-ok="${idx}" ${it.stock > 0 ? "checked" : ""} /> Disponible</label>
+    </div>`
   ).join("");
 }
 
@@ -352,7 +356,7 @@ $("grid").addEventListener("click", (e) => {
 
 $("btnContratar").addEventListener("click", () => {
   const p = prestadores.find((x) => x.id === state.profesionalId);
-  const sub = (Number($("presuMano").value) || 0) + (Number($("presuInsumos").value) || 0);
+  const sub = (Number($("presuMano").value) || 0) + (Number($("presuInsumos").value) || 0) + (Number($("presuTraslado").value) || 0);
   const comision = Math.round(sub * 0.1);
   alert(
     `Solicitud enviada a ${p.nombre}.\nTotal para quien contrata: $${sub.toLocaleString("es-AR")}.\nComisión de la plataforma Obras Ya (10% a cargo del profesional al cerrar): $${comision.toLocaleString("es-AR")}.`
@@ -363,8 +367,30 @@ document.querySelectorAll("[data-back]").forEach((b) => {
   b.addEventListener("click", () => show(b.dataset.back));
 });
 
+
+$("presuRetiro")?.addEventListener("change", () => {
+  const on = $("presuRetiro").checked;
+  $("pedidoBox").classList.toggle("hidden", !on);
+  if (on) {
+    const selI = $("presuItem");
+    const opt = selI.options[selI.selectedIndex];
+    const name = opt ? opt.textContent : "Ítem";
+    const precio = Number($("presuInsumos").value) || 0;
+    $("pedidoItems").innerHTML = `<div class="ferre-row"><span>${name}</span><strong>$${precio.toLocaleString("es-AR")}</strong></div>`;
+    $("pedidoTotal").textContent = "El local prepara el pedido. En el mostrador podés agregar o sacar cosas.";
+  }
+});
+
 $("btnFerreSave")?.addEventListener("click", () => {
-  alert("Lista de precios guardada (demo). En producción queda vinculada al mail de la ferretería.");
+  const f = ferreterias[0];
+  f.nombre = $("ferreNombre").value || f.nombre;
+  f.items.forEach((it, idx) => {
+    const priceEl = document.querySelector(`[data-ferre-precio="${idx}"]`);
+    const okEl = document.querySelector(`[data-ferre-ok="${idx}"]`);
+    if (priceEl) it.precio = Number(priceEl.value) || it.precio;
+    if (okEl) it.stock = okEl.checked ? Math.max(1, it.stock || 1) : 0;
+  });
+  alert("Catálogo actualizado: precio + disponible sí/no. Así el cliente sabe si vale la pena ir.");
 });
 document.querySelectorAll('input[name="repuesto"]').forEach((r) => {
   r.addEventListener("change", syncInsumoFromItem);

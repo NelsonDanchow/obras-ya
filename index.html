@@ -142,6 +142,15 @@
       <label>Mano de obra<input id="presuMano" type="number" min="0" step="1000" value="80000" /></label>
       <label>Insumos (según ferretería)<input id="presuInsumos" type="number" min="0" step="1000" value="0" readonly /></label>
       <label>Traslado / búsqueda de repuesto<input id="presuTraslado" type="number" min="0" step="500" value="0" readonly /></label>
+      <fieldset class="mods">
+        <legend>Retiro en ferretería</legend>
+        <label class="check"><input type="checkbox" id="presuRetiro" /> Armar pedido para retirar en el local (queda preparado; podés sumar o sacar ítems al llegar)</label>
+      </fieldset>
+      <div id="pedidoBox" class="card hidden">
+        <h3>Pedido para retirar</h3>
+        <div id="pedidoItems"></div>
+        <p class="muted tiny" id="pedidoTotal"></p>
+      </div>
       <div class="totales">
         <div><span>Subtotal</span><strong id="presuSub">$0</strong></div>
         <div><span>Comisión plataforma (10%)</span><strong id="presuComision">$0</strong></div>
@@ -171,9 +180,10 @@
     <p class="muted">Cargá precios y stock. Los clientes y profesionales los ven al armar el presupuesto.</p>
     <div class="card form">
       <label>Nombre del local <input id="ferreNombre" placeholder="Ferretería Ejemplo" /></label>
+      <p class="muted">No hace falta contar cada clavo: marcá si el producto <strong>está disponible</strong> y a qué precio. Eso evita visitas al pedo.</p>
       <div id="ferreLista"></div>
-      <button type="button" class="btn primary" id="btnFerreSave">Guardar lista (demo)</button>
-      <p class="muted tiny">En producción esto se actualiza desde el mail/cuenta del local.</p>
+      <button type="button" class="btn primary" id="btnFerreSave">Guardar catálogo</button>
+      <p class="muted tiny">La ferretería entra con su mail y actualiza cuando cambia un precio o se agota un ítem. Después se puede sumar carga por Excel o enlace a su sistema.</p>
     </div>
   </section>
 
@@ -183,7 +193,7 @@
   </dialog>
 
   <footer class="foot">
-    <span>Obras Ya · v0.4</span>
+    <span>Obras Ya · v0.5</span>
     <button type="button" class="linkish" id="btnVerTyC">Ver Términos</button>
     <span>Contratar gratis · Ofrecer ~10% a la plataforma</span>
   </footer>
